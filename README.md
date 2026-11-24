@@ -45,14 +45,24 @@ You should be able to:
 
 ### Task 2 — Topics
 - Create a topic named `transactions`
+    docker compose up -d
+    docker compose exec kafka kafka-topics --bootstrap-server localhost:9092 --create --if-not-exists --topic transactions
+
 - Inspect the topic configuration
-- Identify how many partitions the topic has
+    docker compose exec kafka kafka-topics --bootstrap-server localhost:9092 --describe --topic transactions
+    docker compose exec kafka kafka-configs --bootstrap-server localhost:9092 --entity-type topics --entity-name transactions --describe
+
+- Identify how many partitions the topic has: 1
 
 ---
 
 ### Task 3 — Producers
 - Start a Kafka producer
+    docker compose exec kafka kafka-console-producer --bootstrap-server localhost:9092 --topic transactions
 - Send multiple messages to the `transactions` topic
+    Order placed
+    Payment confirmed
+    Order shipped
 - Observe how messages are written to Kafka
 
 ---
@@ -60,12 +70,21 @@ You should be able to:
 ### Task 4 — Consumers
 - Start a Kafka consumer
 - Read messages from the `transactions` topic
+
+    docker compose exec kafka kafka-console-consumer --bootstrap-server localhost:9092 --topic transactions
+
+    Order placed
+    Payment confirmed
+    ^CProcessed a total of 2 messages #control C cut it
+
 - Restart the consumer and observe what happens
+    It resumes unless we use --from-beginning
 
 ---
 
 ### Task 5 — Offsets
 - Identify how Kafka tracks which messages have been consumed
+Kafka tracks a committed offset for each consumer group and topic partition. It marks the group’s progress, so a consumer using that group can resume after restarting.
 - Observe the effect of restarting consumers with and without replaying old messages
 
 ---
@@ -76,6 +95,14 @@ You should be able to:
 - Observe how the messages are distributed
 
 ---
+
+### test on my own 
+- import transactions.csv
+    Get-Content .\transactions.csv |
+  Select-Object -Skip 1 |
+  docker compose exec -T kafka kafka-console-producer --bootstrap-server localhost:9092 --topic transactionsdocker 
+  docker compose exec kafka kafka-console-consumer --bootstrap-server localhost:9092 --topic 
+  transactions --group csv-check --from-beginning
 
 ## Reflection Questions (Answer in Your Own Words)
 
@@ -99,3 +126,4 @@ Submit a short document explaining:
 - What commands you used
 - What you observed
 - Answers to the reflection questions
+
